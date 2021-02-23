@@ -4,8 +4,6 @@ import time
 import threading
 from requests.exceptions import ConnectionError
 
-import numpy as np
-
 
 class InfluxLogger(threading.Thread):
 
@@ -94,28 +92,30 @@ class InfluxLogger(threading.Thread):
             self.buffer = []
 
         status = 0
-        #try:
-        res = self.client.write_points(bufferCopy,batch_size=5000)
-        # except influxdb.exceptions.InfluxDBServerError as e:
-        #     #print(e)
-        #     status = 1
-        #     # 502 Bad gateway (Influx server down behind proxy)
-        #     pass
-        # except influxdb.exceptions.InfluxDBClientError as e:
-        #     #print(e)
-        #     status = 2
-        #     # 400 partial write (wrong data type)
-        #     # 401 authorization failed
-        #     # 403 wrong permissions
-        #     # 404 database not found
-        #     # 413 Request Entity Too Large
-        # except ConnectionError as e:
-        #     #print(e)
-        #     status = 3
-        #     # server down
-        #     # wrong URL
-        #     # No network connection available
-        status = 0
+        try:
+            res = self.client.write_points(bufferCopy,batch_size=5000)
+        except influxdb.exceptions.InfluxDBServerError as e:
+            #print(e)
+            status = 1
+            # 502 Bad gateway (Influx server down behind proxy)
+            pass
+        except influxdb.exceptions.InfluxDBClientError as e:
+            #print(e)
+            status = 2
+            # 400 partial write (wrong data type)
+            # 401 authorization failed
+            # 403 wrong permissions
+            # 404 database not found
+            # 413 Request Entity Too Large
+        except ConnectionError as e:
+            #print(e)
+            status = 3
+            # server down
+            # wrong URL
+            # No network connection available
+        except:
+            status = 4
+        
         with self.lock:
             if (status == 1 or status == 3):
                 # restore data
@@ -125,7 +125,7 @@ class InfluxLogger(threading.Thread):
 
 
 # Test stuff
-dl = InfluxLogger(host='influx.antonverbeek.nl', username="waveshare", password="2AyQuUoJZ6ZTv69Lap1D", database="waveshare")
+dl = InfluxLogger(host='influx.antonverbeek.nl', username="REDACTED", password="REDACTED", database="REDACTED")
 
 tStart = time.time()
 
