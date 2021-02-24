@@ -95,12 +95,10 @@ class InfluxLogger(threading.Thread):
         try:
             res = self.client.write_points(bufferCopy,batch_size=5000)
         except influxdb.exceptions.InfluxDBServerError as e:
-            #print(e)
             status = 1
             # 502 Bad gateway (Influx server down behind proxy)
             pass
         except influxdb.exceptions.InfluxDBClientError as e:
-            #print(e)
             status = 2
             # 400 partial write (wrong data type)
             # 401 authorization failed
@@ -108,7 +106,6 @@ class InfluxLogger(threading.Thread):
             # 404 database not found
             # 413 Request Entity Too Large
         except ConnectionError as e:
-            #print(e)
             status = 3
             # server down
             # wrong URL
@@ -124,21 +121,3 @@ class InfluxLogger(threading.Thread):
                 self.bufferCurrentSize -= len(bufferCopy)
 
 
-# Test stuff
-dl = InfluxLogger(host='influx.antonverbeek.nl', username="REDACTED", password="REDACTED", database="REDACTED")
-
-tStart = time.time()
-
-t0 = time.time()
-tLastPrint = time.time()
-
-while (time.time() - tStart) < 600 :
-    p = dl.addPoint(fields={"value":time.time() - t0 } )
-
-    time.sleep(0.001)
-
-    if time.time() - tLastPrint > 1.0:
-        print(p)
-        tLastPrint = time.time()
-
-dl.stop()
