@@ -1,2 +1,2 @@
 # influxLogger
-python module to easily log data to an influxDB asynchronous
+A simple logger to send data to an influxDB server asynchronously
